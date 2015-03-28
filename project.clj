@@ -4,6 +4,10 @@
   :license {:name "GNU GPLv3"
             :url "https://www.gnu.org/licenses/gpl-3.0.txt"}
 
+  :uberjar-name "petrarch.jar"
+  :main petrarch.core
+  :jvm-opts ["-server"]
+
   :dependencies [[org.clojure/clojure "1.6.0"]
                  [org.clojure/clojurescript "0.0-2850"]
                  [figwheel "0.2.5-SNAPSHOT"]
@@ -13,6 +17,7 @@
                  [markdown-clj "0.9.65"]
                  [cljs-ajax "0.3.10"]
 ; Clojure libs
+                 [fogus/ring-edn "0.2.0"]
                  [http-kit "2.1.18"]
                  [lib-noir "0.8.7"]
                  [compojure "1.1.8"]
@@ -21,7 +26,7 @@
   :plugins [[lein-cljsbuild "1.0.4"]
             [lein-figwheel "0.2.5-SNAPSHOT"]]
 
-  :source-paths ["src-cljs"]
+  :source-paths ["src" "src-cljs"]
 
   :clean-targets ^{:protect false} ["resources/public/js/compiled"]
 

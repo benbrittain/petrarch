@@ -15,13 +15,7 @@
 ;; define your app data so that it doesn't get over-written on reload
 (defonce app-state
   (atom
-    {:entries
-     [{:id 0 :title "The flight from society" :date "3/26/15" :text "blah blah blah"}
-      {:id 1 :title "blog tech" :date "3/26/15" :text "# blah blah blah"}
-      {:id 2 :title "blog tech 1" :date "3/26/15" :text "# blah blah blah"}
-      {:id 3 :title "blog tech" :date "3/26/15" :text "# blah blah blah"}
-      {:id 4 :title "blog tech" :date "3/26/15" :text "# blah blah blah"}
-      {:id 5 :title "blog tech" :date "3/26/15" :text "# blah blah blah"}]
+    {:entries []
     :view :entries
     :entry 0}))
 
@@ -29,11 +23,14 @@
   (reify
     om/IWillMount
     (will-mount [_]
-      (GET (str "/entry/" (:id entry)))); {:handler
-                                       ; #(.log js/console (str %))}))
+      (GET (str "/entry/" (:id entry)) {:handler (fn [response]
+                                                   (om/transact! entry :text (fn [_] (:text response))))
+                                        :error-handler (fn [error]
+                                                         (println error))}))
     om/IRender
     (render [this]
-      (let [text (markdown/md->html (:text entry))]
+      (let [text (if (= (:text entry) nil) "text is empty"
+                   (markdown/md->html (:text entry)))]
         (dom/div #js {:dangerouslySetInnerHTML #js {:__html text}}
                  nil)))))
 
@@ -65,18 +62,24 @@
       (let [osm-url "http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             osm-attrib "Map data © OpenStreetMap contributors"]
         (doto (js/L.Map. "the-map")
-          (.setView (js/L.LatLng. 0 0) 1)
+          (.setView (js/L.LatLng. 13.75 100.0) 8)
           (.addLayer (js/L.TileLayer. osm-url
                                       #js {:minZoom 1, :maxZoom 19,
                                            :attribution osm-attrib})))))))
 
 (defn page-view [data owner]
   (reify
+    om/IWillMount
+    (will-mount [_]
+      (GET "/entry/" {:handler (fn [response]
+                                 (om/transact! data :entries #(conj % response)))
+                      :error-handler (fn [error]
+                                       (println error))}))
     om/IRender
     (render [this]
       (let [view (:view data)
             entry-id (:entry data)
-            entry (first (filter #(= (str (:id %)) entry-id) (:entries data)))]
+            entry (first (seq (filter #(= (str (:id %)) entry-id) (:entries data))))]
         (dom/div #js {:className "wrapper"}
                  (condp = view
                    :entry (dom/div #js {:className "entry"}

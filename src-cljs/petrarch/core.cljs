@@ -23,16 +23,19 @@
   (reify
     om/IWillMount
     (will-mount [_]
-      (GET (str "/entry/" (:id entry)) {:handler (fn [response]
-                                                   (om/transact! entry :text (fn [_] (:text response))))
-                                        :error-handler (fn [error]
-                                                         (println error))}))
+      (GET (str "api/entry/" (:id entry)) {:handler (fn [response]
+                                                      (om/transact! entry :text (fn [_] (:text response))))
+                                           :error-handler (fn [error] (println error))}))
     om/IRender
     (render [this]
       (let [text (if (= (:text entry) nil) "text is empty"
                    (markdown/md->html (:text entry)))]
-        (dom/div #js {:dangerouslySetInnerHTML #js {:__html text}}
-                 nil)))))
+        (dom/div #js {:className "read"}
+                 (dom/div #js {:id "title" :style #js {:border "1px black solid"}}
+                          (dom/h1 nil (:title entry))
+                          (dom/h2 nil (:date entry)))
+                 (dom/div #js {:dangerouslySetInnerHTML #js {:__html text}}
+                          nil))))))
 
 (defn entry-view [entry owner]
   (reify
@@ -71,8 +74,8 @@
   (reify
     om/IWillMount
     (will-mount [_]
-      (GET "/entry/" {:handler (fn [response]
-                                 (om/transact! data :entries #(conj % response)))
+      (GET "api/entry/" {:handler (fn [response]
+                                 (om/transact! data :entries (fn [_] response)))
                       :error-handler (fn [error]
                                        (println error))}))
     om/IRender

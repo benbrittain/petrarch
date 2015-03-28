@@ -14,27 +14,30 @@
    :headers {"Content-Type" "application/edn"}
    :body (pr-str data)})
 
-
 (defn get-entries-index []
-  (generate-response {:id 0 :title "test" :date "03/28/2015" :latitude 13.75 :longitude 100}))
+  (generate-response [{:id 0 :title "test" :date "03/28/2015" :latitude 13.75 :longitude 100}
+                      {:id 1 :title "The Blog" :date "03/28/2015" :latitude 13.75 :longitude 100}
+                      {:id 2 :title "What am I bringing?" :date "03/29/2015" :latitude 13.75 :longitude 100}]))
 
 (defn get-entry [id]
   (generate-response {:text (str "#test
-                            woah, so great: " id)}))
+woah, so great: " id)}))
 
 (defroutes routes
   (GET "/" [] (resp/resource-response "index.html" {:root "public"}))
-  (GET "/entry/" [] (get-entries-index))
-  (GET "/entry/:id" [id] (get-entry id))
+  (GET "/api/entry/" [] (get-entries-index))
+  (GET "/api/entry/:id" [id] (get-entry id))
   (route/resources "/")
   (route/not-found "<p>No such adventure has been taken yet</p>")) ;; all other, return 404
 
+
+
+; App Setup
 
 (def app
   (-> routes
       edn/wrap-edn-params))
 
-;contains function that can be used to stop http-kit server
 (defonce server
          (atom nil))
 

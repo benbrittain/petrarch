@@ -41,7 +41,7 @@
   (reify
     om/IRender
     (render [this]
-      (dom/li #js {:className "entry"}
+      (dom/div #js {:className "entry"}
               (dom/a #js {:href (str "#/entry/" (:id entry))}
                      (:title entry))))))
 
@@ -51,31 +51,32 @@
     (render [this]
       (dom/div nil
                (dom/h2 nil "Entries")
-               (apply dom/ul nil
+               (apply dom/div nil
                       (om/build-all entry-view (:entries data)))))))
 
 (defn map-view [_ owner]
   (reify
     om/IRender
     (render [_]
-      (dom/div #js {:id "the-map"}
-               nil))
+      (dom/div #js {:id "the-map"} "test!"))
     om/IDidMount
     (did-mount [_]
-      (let [osm-url "http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            osm-attrib "Map data © OpenStreetMap contributors"]
-        (doto (js/L.Map. "the-map")
-          (.setView (js/L.LatLng. 13.75 100.0) 8)
-          (.addLayer (js/L.TileLayer. osm-url
-                                      #js {:minZoom 1, :maxZoom 19,
-                                           :attribution osm-attrib})))))))
+      (let [
+;            the-map (js/L.mapbox.map. "the-map" "bbrittain.lj6l79gh")]
+            the-map (js/L.mapbox.map. "the-map" "examples.map-i86nkdio")]
+        (doto the-map
+          (.setView (js/L.LatLng. 13.75 100.0) 8))
+        (->
+          (js/L.marker. (js/L.LatLng. 13.75 100.0))
+          (.addTo the-map)
+          (.bindPopup "I am in Thailand!"))))))
 
 (defn page-view [data owner]
   (reify
     om/IWillMount
     (will-mount [_]
       (GET "api/entry/" {:handler (fn [response]
-                                 (om/transact! data :entries (fn [_] response)))
+                                    (om/transact! data :entries (fn [_] response)))
                       :error-handler (fn [error]
                                        (println error))}))
     om/IRender
@@ -83,15 +84,21 @@
       (let [view (:view data)
             entry-id (:entry data)
             entry (first (seq (filter #(= (str (:id %)) entry-id) (:entries data))))]
-        (dom/div #js {:className "wrapper"}
-                 (condp = view
-                   :entry (dom/div #js {:className "entry"}
-                                   (om/build read-view entry))
-                   :entries (dom/div #js {:className "entries"}
-                                     (om/build entries-view data))
-                   (dom/div #js {:className "blah"} nil))
-                 (dom/div #js {:className "map"}
-                          (om/build map-view data)))))))
+        (dom/div nil
+                 (dom/header #js {:className "header"}
+                          (dom/h1 nil "Wandering through Indochina"))
+                 (dom/div #js {:className "wrapper"}
+                          (condp = view
+                            :entry (dom/div #js {:className "entries"}
+                                            (om/build read-view entry))
+                            :entries (dom/div #js {:className "entries"}
+                                              (om/build entries-view data))
+                            (dom/div #js {:className "blah"} nil))
+                          (dom/div #js {:className "map"}
+                                   (om/build map-view data)))
+                 (dom/footer #js {:className "footer"}
+                          (dom/h1 nil "Ben Brittain. No Rights Reserved"))
+                 )))))
 
 ; Render root
 (defroute "/" [] (swap! app-state assoc :view :entries))

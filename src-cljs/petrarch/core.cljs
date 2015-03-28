@@ -2,7 +2,13 @@
   (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [om.core :as om :include-macros true]
             [om.dom :as dom :include-macros true]
-            [cljs.core.async :refer [put! chan <!]]))
+            [markdown.core :as markdown]
+            [secretary.core :as secretary :refer-macros [defroute]]
+            [ajax.core :refer [GET POST]]
+            [cljs.core.async :refer [put! chan <!]]
+            [goog.events :as events]
+            [goog.history.EventType :as EventType])
+  (:import goog.History))
 
 (enable-console-print!)
 
@@ -10,15 +16,34 @@
 (defonce app-state
   (atom
     {:entries
-     [{:title "The flight from society" :date "3/26/15"}
-      {:title "blog tech" :date "3/26/15"}]}))
+     [{:id 0 :title "The flight from society" :date "3/26/15" :text "blah blah blah"}
+      {:id 1 :title "blog tech" :date "3/26/15" :text "# blah blah blah"}
+      {:id 2 :title "blog tech 1" :date "3/26/15" :text "# blah blah blah"}
+      {:id 3 :title "blog tech" :date "3/26/15" :text "# blah blah blah"}
+      {:id 4 :title "blog tech" :date "3/26/15" :text "# blah blah blah"}
+      {:id 5 :title "blog tech" :date "3/26/15" :text "# blah blah blah"}]
+    :view :entries
+    :entry 0}))
+
+(defn read-view [entry owner]
+  (reify
+    om/IWillMount
+    (will-mount [_]
+      (GET (str "/entry/" (:id entry)))); {:handler
+                                       ; #(.log js/console (str %))}))
+    om/IRender
+    (render [this]
+      (let [text (markdown/md->html (:text entry))]
+        (dom/div #js {:dangerouslySetInnerHTML #js {:__html text}}
+                 nil)))))
 
 (defn entry-view [entry owner]
   (reify
     om/IRender
     (render [this]
-      (dom/li nil (:title entry)))))
-
+      (dom/li #js {:className "entry"}
+              (dom/a #js {:href (str "#/entry/" (:id entry))}
+                     (:title entry))))))
 
 (defn entries-view [data owner]
   (reify
@@ -33,8 +58,7 @@
   (reify
     om/IRender
     (render [_]
-      (dom/div #js {:id "the-map"
-                    :style #js {:height 500}}
+      (dom/div #js {:id "the-map"}
                nil))
     om/IDidMount
     (did-mount [_]
@@ -50,11 +74,34 @@
   (reify
     om/IRender
     (render [this]
-      (dom/div nil
-               (dom/div #js {:id "entries"}
-                        (om/build entries-view data))
-               (dom/div #js {:id "map"}
-                        (om/build map-view data))))))
+      (let [view (:view data)
+            entry-id (:entry data)
+            entry (first (filter #(= (str (:id %)) entry-id) (:entries data)))]
+        (dom/div #js {:className "wrapper"}
+                 (condp = view
+                   :entry (dom/div #js {:className "entry"}
+                                   (om/build read-view entry))
+                   :entries (dom/div #js {:className "entries"}
+                                     (om/build entries-view data))
+                   (dom/div #js {:className "blah"} nil))
+                 (dom/div #js {:className "map"}
+                          (om/build map-view data)))))))
+
 ; Render root
+(defroute "/" [] (swap! app-state assoc :view :entries))
+(defroute "/entry/:entry-id" [entry-id] (swap! app-state assoc :view :entry :entry entry-id))
+
 (om/root page-view app-state
   {:target (. js/document (getElementById "app"))})
+
+
+;; History configuration
+(let [history (History.)
+      navigation EventType/NAVIGATE]
+  (goog.events/listen history
+                      navigation
+                      #(-> % .-token secretary/dispatch!))
+  (doto history (.setEnabled true)))
+
+(secretary/set-config! :prefix "#")
+(secretary/dispatch! "/")

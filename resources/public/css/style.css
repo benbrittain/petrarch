@@ -1,2 +1,36 @@
 /* some style */
 
+html {
+    background-color: #F1EEE8;
+}
+
+.wrapper {
+    display: flex;
+}
+
+.entry {
+    flex: 1;
+    border: 1px black solid;
+}
+.entries {
+    flex: 1;
+    border: 1px black solid;
+}
+
+.map {
+    flex: 2;
+    border: 1px black solid;
+}
+
+#the-map {
+    height: 500px;
+    width: 90%;
+}
+
+.entries ul {
+    list-style: none;
+}
+
+.entries li{
+    border: 1px black solid;
+}

@@ -9,6 +9,11 @@
                  [figwheel "0.2.5-SNAPSHOT"]
                  [org.clojure/core.async "0.1.346.0-17112a-alpha"]
                  [org.omcljs/om "0.8.8"]
+                 [secretary "1.2.2"]
+                 [markdown-clj "0.9.65"]
+                 [cljs-ajax "0.3.10"]
+; Clojure libs
+                 [http-kit "2.1.18"]
                  [lib-noir "0.8.7"]
                  [compojure "1.1.8"]
                  [ring-server "0.3.1"]]

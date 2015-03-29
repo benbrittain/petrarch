@@ -16,19 +16,22 @@
 (defonce app-state
   (atom
     {:entries []
-    :view :entries
-    :entry 0}))
+     :path []
+     :view :entries
+     :entry 0}))
 
 (defn read-view [entry owner]
   (reify
     om/IWillMount
     (will-mount [_]
-      (GET (str "api/entry/" (:id entry)) {:handler (fn [response]
-                                                      (om/transact! entry :text (fn [_] (:text response))))
-                                           :error-handler (fn [error] (println error))}))
+      (let [entries (om/get-state owner :entries)]
+        (GET (str "api/entry/" (:id entry)) {:handler (fn [response]
+                                                        (om/transact! entry :text (fn [_] (:text response))))
+                                             :error-handler (fn [error] (println error))})))
     om/IRender
     (render [this]
-      (let [text (if (= (:text entry) nil) "text is empty"
+      (let [text (if (= (:text entry) nil)
+                   "no entry"
                    (markdown/md->html (:text entry)))]
         (dom/div #js {:className "read"}
                  (dom/div #js {:id "title"}
@@ -54,33 +57,48 @@
                       (om/build-all entry-view (reverse (sort-by #(:id %) (:entries data)))))))))
 
 
-(defn map-view [_ owner]
+(defn entry->marker [entry]
+  (js/L.marker. (js/L.LatLng. (:latitude entry) (:longitude entry))))
+
+(defn map-view [data owner]
   (reify
-    om/IRender
-    (render [_]
+    om/IRenderState
+    (render-state [this {:keys [entries]}]
       (dom/div #js {:id "the-map"} "test!"))
+    om/IWillMount
+    (will-mount [_]
+      (GET "api/path/" {:handler (fn [response]
+                                   (om/transact! data :path (fn [_] (:path response))))
+                        :error-handler (fn [error] (println error))}))
     om/IDidMount
     (did-mount [_]
-      (let [
+      (let [entries (om/get-state owner :entries)
             the-map (js/L.mapbox.map. "the-map" "bbrittain.lj6l79gh")]
-;            the-map (js/L.mapbox.map. "the-map" "examples.map-i86nkdio")]
         (doto the-map
           (.setView (js/L.LatLng. 13.75 100.0) 8))
-        (->
-          (js/L.marker. (js/L.LatLng. 13.75 100.0))
-          (.addTo the-map)
-          (.bindPopup "I am in Thailand!"))))))
+        (go (loop []
+              (let [entry (<! entries)]
+                (-> (entry->marker entry)
+                    (.addTo the-map)
+                    (.bindPopup (:title entry)))
+                (recur))))))))
 
 (defn page-view [data owner]
   (reify
+    om/IInitState
+    (init-state [_]
+      {:entries (chan)})
     om/IWillMount
     (will-mount [_]
-      (GET "api/entry/" {:handler (fn [response]
-                                    (om/transact! data :entries (fn [_] response)))
-                      :error-handler (fn [error]
-                                       (println error))}))
-    om/IRender
-    (render [this]
+      (let [entries (om/get-state owner :entries)]
+        (GET "api/entry/" {:handler (fn [response]
+                                      (doall
+                                        (map #(put! entries %) response))
+                                      (om/transact! data :entries (fn [_] response)))
+                           :error-handler (fn [error]
+                                            (println error))})))
+    om/IRenderState
+    (render-state [this {:keys [entries]}]
       (let [view (:view data)
             entry-id (:entry data)
             entry (first (seq (filter #(= (str (:id %)) entry-id) (:entries data))))]
@@ -93,11 +111,10 @@
                             :entry (dom/div #js {:className "entries"}
                                             (om/build read-view entry))
                             :entries (dom/div #js {:className "entries"}
-                                              (om/build entries-view data))
+                                              (om/build entries-view data {:init-state {:entries entries}}))
                             (dom/div #js {:className "blah"} nil))
                           (dom/div #js {:className "map"}
-                                   (om/build map-view data)))
-                 )))))
+                                   (om/build map-view data {:init-state {:entries entries}}))))))))
 
 ; Render root
 (defroute "/" [] (swap! app-state assoc :view :entries))

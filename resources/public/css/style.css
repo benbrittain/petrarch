@@ -34,6 +34,8 @@ h1 {
 .entries {
     text-align: left;
     flex: 1 100%;
+    overflow-y: auto;
+    min-height: 100px;
 }
 
 .entry {

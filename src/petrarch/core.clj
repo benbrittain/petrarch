@@ -15,13 +15,15 @@
    :body (pr-str data)})
 
 (defn get-entries-index []
-  (generate-response [{:id 0 :title "Who is Ben Brittain?" :date "03/28/2015" :latitude 13.75 :longitude 100}
-                      {:id 1 :title "Blog Colophon" :date "03/28/2015" :latitude 13.75 :longitude 100}
-                      {:id 2 :title "Packing List" :date "03/29/2015" :latitude 13.75 :longitude 100}]))
+  (let [entries (read-string (slurp "resources/data/entries.edn"))
+        entries-sans-text (into [] (map #(dissoc % :text) entries))]
+    (generate-response entries-sans-text)))
 
 (defn get-entry [id]
-  (generate-response {:text (str "#test
-woah, so great: " id)}))
+  (let [entries (read-string (slurp "resources/data/entries.edn"))
+        entry (first (filter #(= (str (:id %)) id) entries))]
+    (do
+      (generate-response {:text (:text entry)}))))
 
 (defroutes routes
   (GET "/" [] (resp/resource-response "index.html" {:root "public"}))

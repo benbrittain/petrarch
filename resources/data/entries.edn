@@ -1,0 +1,8 @@
+[
+ {  :id 0 :title "Who is Ben Brittain?" :date "03/28/2015" :latitude 13.75 :longitude 100
+    :text "I'm Me!"}
+ {  :id 1 :title "Blog Colophon" :date "03/28/2015" :latitude 13.75 :longitude 100
+    :text "clojure galore"}
+ {  :id 2 :title "Packing List" :date "03/29/2015" :latitude 13.75 :longitude 100
+    :text "not much stuff"}
+]

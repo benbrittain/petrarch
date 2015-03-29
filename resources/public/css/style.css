@@ -1,17 +1,30 @@
-/* some style */
+html, body, #app {
+    height: 99%;
+    background-color: #FDF6EE;
+}
 
 .wrapper {
+    height: 98%;
     display: flex;
     flex-flow: row wrap;
+    position: relative;
 }
 
 .wrapper > * {
-    padding: 10px;
     flex: 1 100%;
 }
 
 .header {
+    flex-flow: row wrap;
     text-align: center;
+    height: 4%;
+    border-bottom: 3px #265858 solid;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+h1 {
+    height: 80px;
 }
 
 .footer {
@@ -20,22 +33,51 @@
 
 .entries {
     text-align: left;
-    background: deepskyblue;
     flex: 1 100%;
 }
 
 .entry {
     display: flex;
     flex: 1 100%;
-    background: red;
+    height: 80px;
+    justify-content: left;
+    align-items: center;
+    background-color: #A4CDB3;
+    font-size: 30px;
+    padding: 10px;
+    margin: 5px;
 }
+
+.entries a {
+    color: black;
+}
+
+.entries a {
+    color: black;
+    text-decoration: none;
+}
+/* unvisited link */
+.entries a:link {
+    color: black;
+}
+
+/* visited link */
+.entries a:visited {
+    color: black;
+}
+
+/* mouse over link */
+.entries a:hover {
+    color: #3A6872;
+}
+
 
 .map {
     display: flex;
-    background: gold;
 }
 
 #the-map {
+    border-left: 3px #265858 solid;
     flex: 1;
 }
 
@@ -43,7 +85,6 @@
 @media all and (max-width: 800px) {
     .map {
         height: 500px;
-        border: 1px black solid;
     }
 }
 
@@ -61,7 +102,4 @@
     .footer    { order: 3; }
 }
 
-body {
-    padding: 0px;
-    margin: 0px;
-}
+

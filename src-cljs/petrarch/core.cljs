@@ -31,7 +31,7 @@
       (let [text (if (= (:text entry) nil) "text is empty"
                    (markdown/md->html (:text entry)))]
         (dom/div #js {:className "read"}
-                 (dom/div #js {:id "title" :style #js {:border "1px black solid"}}
+                 (dom/div #js {:id "title"}
                           (dom/h1 nil (:title entry))
                           (dom/h2 nil (:date entry)))
                  (dom/div #js {:dangerouslySetInnerHTML #js {:__html text}}
@@ -41,18 +41,18 @@
   (reify
     om/IRender
     (render [this]
-      (dom/div #js {:className "entry"}
               (dom/a #js {:href (str "#/entry/" (:id entry))}
-                     (:title entry))))))
+                     (dom/div #js {:className "entry"}
+                              (:title entry))))))
 
 (defn entries-view [data owner]
   (reify
     om/IRender
     (render [this]
       (dom/div nil
-               (dom/h2 nil "Entries")
                (apply dom/div nil
-                      (om/build-all entry-view (:entries data)))))))
+                      (om/build-all entry-view (reverse (sort-by #(:id %) (:entries data)))))))))
+
 
 (defn map-view [_ owner]
   (reify
@@ -62,8 +62,8 @@
     om/IDidMount
     (did-mount [_]
       (let [
-;            the-map (js/L.mapbox.map. "the-map" "bbrittain.lj6l79gh")]
-            the-map (js/L.mapbox.map. "the-map" "examples.map-i86nkdio")]
+            the-map (js/L.mapbox.map. "the-map" "bbrittain.lj6l79gh")]
+;            the-map (js/L.mapbox.map. "the-map" "examples.map-i86nkdio")]
         (doto the-map
           (.setView (js/L.LatLng. 13.75 100.0) 8))
         (->
@@ -84,9 +84,10 @@
       (let [view (:view data)
             entry-id (:entry data)
             entry (first (seq (filter #(= (str (:id %)) entry-id) (:entries data))))]
-        (dom/div nil
-                 (dom/header #js {:className "header"}
+        (dom/div #js {:id "app"}
+                 (dom/div #js {:className "header"}
                           (dom/h1 nil "Wandering through Indochina"))
+;                          (dom/h2 nil "Ben Brittain"))
                  (dom/div #js {:className "wrapper"}
                           (condp = view
                             :entry (dom/div #js {:className "entries"}
@@ -96,8 +97,6 @@
                             (dom/div #js {:className "blah"} nil))
                           (dom/div #js {:className "map"}
                                    (om/build map-view data)))
-                 (dom/footer #js {:className "footer"}
-                          (dom/h1 nil "Ben Brittain. No Rights Reserved"))
                  )))))
 
 ; Render root

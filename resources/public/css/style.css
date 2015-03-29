@@ -1,6 +1,12 @@
+@font-face {
+    font-family: 'FiraSans';
+    src: url('/css/FiraSans.woff');
+}
 html, body, #app {
     height: 99%;
+    background-image: url("/images/ricepaper.png");
     background-color: #FDF6EE;
+    font-family: 'FiraSans', 'Helvetica', sans-serif;
 }
 
 .wrapper {
@@ -47,7 +53,8 @@ h1 {
     background-color: #A4CDB3;
     font-size: 30px;
     padding: 10px;
-    margin: 5px;
+    margin: 10px;
+    border: 1px black solid;
 }
 
 .entries a {
@@ -83,6 +90,10 @@ h1 {
     flex: 1;
 }
 
+.read {
+    padding: 10px;
+}
+
 
 @media all and (max-width: 800px) {
     .map {
@@ -102,6 +113,3 @@ h1 {
     .entries   { order: 1; }
     .map       { order: 2; }
     .footer    { order: 3; }
-}
-
-

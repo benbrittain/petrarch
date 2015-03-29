@@ -22,8 +22,8 @@
 
 (defn read-view [entry owner]
   (reify
-    om/IWillMount
-    (will-mount [_]
+    om/IDidMount
+    (did-mount [_]
       (let [entries (om/get-state owner :entries)]
         (GET (str "api/entry/" (:id entry)) {:handler (fn [response]
                                                         (om/transact! entry :text (fn [_] (:text response))))
@@ -37,7 +37,7 @@
                  (dom/div #js {:id "title"}
                           (dom/h1 nil (:title entry))
                           (dom/h2 nil (:date entry)))
-                 (dom/div #js {:dangerouslySetInnerHTML #js {:__html text}}
+                 (dom/div #js {:id "markdown" :dangerouslySetInnerHTML #js {:__html text}}
                           nil))))))
 
 (defn entry-view [entry owner]
@@ -80,8 +80,8 @@
               (let [entry (<! entries)]
                 (-> (entry->marker entry)
                     (.addTo the-map)
-                    (.bindPopup (:title entry)))
-                (recur))))))))
+                    (.bindPopup (str "<a href=#/entry/" (:id entry) " >" (:title entry) "</a>")))
+                           (recur))))))))
 
 (defn page-view [data owner]
   (reify

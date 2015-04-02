@@ -104,8 +104,9 @@
             entry (first (seq (filter #(= (str (:id %)) entry-id) (:entries data))))]
         (dom/div #js {:id "app"}
                  (dom/div #js {:className "header"}
-                          (dom/h1 nil "Wandering through Indochina"))
-;                          (dom/h2 nil "Ben Brittain"))
+                          (dom/a #js {:href "#/"}
+                                 (dom/h1 nil "Wandering through Indochina")))
+                 ;                          (dom/h2 nil "Ben Brittain"))
                  (dom/div #js {:className "wrapper"}
                           (condp = view
                             :entry (dom/div #js {:className "entries"}

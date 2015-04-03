@@ -1,0 +1,2 @@
+CREATE TABLE locations (id VARCHAR(20) PRIMARY KEY);
+

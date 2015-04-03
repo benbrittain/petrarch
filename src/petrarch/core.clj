@@ -3,6 +3,7 @@
             [org.httpkit.server :as http-kit]
             [ring.util.response :as resp]
             [ring.middleware.edn :as edn]
+            [petrarch.db :as db]
             [compojure.route :as route]
             [compojure.handler :refer [site]]
             [compojure.core :refer [defroutes GET POST PUT DELETE ANY context]])
@@ -28,13 +29,17 @@
   (let [routes (read-string (slurp "resources/data/routes.edn"))]
     (generate-response {:path routes})))
 
+(defn save-coords [coords]
+  (doseq [point coords]
+    (db/insert-point point)))
+
 (defroutes routes
   (GET "/" [] (resp/resource-response "index.html" {:root "public"}))
   (GET "/api/entry/" [] (get-entries-index))
   (GET "/api/entry/:id" [id] (get-entry id))
   (POST "/api/routes/" [] (fn [req]
                             (let [edn (:params req)]
-                              ;(save-coords (:coords edn))
+                              (save-coords (:coords edn))
                               (generate-response {:text "good"}))))
   (route/resources "/")
   (route/not-found "<p>No such adventure has been taken yet</p>"))

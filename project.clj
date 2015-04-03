@@ -17,6 +17,10 @@
                  [markdown-clj "0.9.65"]
                  [cljs-ajax "0.3.10"]
 ; Clojure libs
+                 [yesql "0.4.0"]
+                 [org.postgresql/postgresql "9.3-1102-jdbc41"]
+                 [ragtime "0.3.6"]
+                 [clj-time "0.9.0"]
                  [fogus/ring-edn "0.2.0"]
                  [http-kit "2.1.18"]
                  [lib-noir "0.8.7"]
@@ -24,7 +28,8 @@
                  [ring-server "0.3.1"]]
 
   :plugins [[lein-cljsbuild "1.0.4"]
-            [lein-figwheel "0.2.5-SNAPSHOT"]]
+            [lein-figwheel "0.2.5-SNAPSHOT"]
+            [ragtime/ragtime.lein "0.3.6"]]
 
   :source-paths ["src" "src-cljs"]
 
@@ -48,7 +53,9 @@
                          :optimizations :advanced
                          :pretty-print false}}]}
 
-  :figwheel { :http-server-root "public" ;; default and assumes "resources" 
-             :server-port 3449 ;; default
-             :css-dirs ["resources/public/css"] ;; watch and update CSS
-             })
+  :figwheel {:http-server-root "public"
+             :server-port 3449
+             :css-dirs ["resources/public/css"]}
+
+  :ragtime {:migrations ragtime.sql.files/migrations
+            :database "jdbc:postgresql://localhost/petrarch?user=dev"})

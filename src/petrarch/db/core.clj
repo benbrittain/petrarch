@@ -41,3 +41,8 @@
                    (geo/point (:lat center-point) (:long center-point))
                    radius
                    ]))
+
+(defn get-500-points
+  "retrieves 500 points - testing"
+  []
+  (jdbc/query @db ["SELECT point FROM locations LIMIT 500"]))

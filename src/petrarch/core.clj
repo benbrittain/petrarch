@@ -25,10 +25,6 @@
         entry (first (filter #(= (str (:id %)) id) entries))]
     (generate-response {:text (:text entry)})))
 
-(defn get-routes []
-  (let [routes (read-string (slurp "resources/data/routes.edn"))]
-    (generate-response {:path routes})))
-
 (defn save-coords [coords]
   (doseq [point coords]
     (db/insert-point! point)))
@@ -41,6 +37,10 @@
                             (let [edn (:params req)]
                               (save-coords (:coords edn))
                               (generate-response {:text "good"}))))
+  (GET "/api/routes/" [] (fn [req]
+                           (let [edn (:params req)
+                                 route (into [] (db/get-500-points))]
+                             (generate-response {:route route}))))
   (route/resources "/")
   (route/not-found "<p>No such adventure has been taken yet</p>"))
 

@@ -16,7 +16,6 @@
 (defonce app-state
   (atom
     {:entries []
-     :path []
      :view :entries
      :entry 0}))
 
@@ -61,46 +60,64 @@
 (defn entry->marker [entry]
   (js/L.marker. (js/L.LatLng. (:latitude entry) (:longitude entry))))
 
+
+(defn add-route [the-map route]
+  (let [latlngs (map (fn [a] {:lat (second (:coordinates (:point a))) :long (first (:coordinates (:point a)))}) route)
+        points (map #(js/L.LatLng. (:lat %) (:long %)) latlngs)
+        polyline (js/L.polyline. (clj->js points))]
+    (.addTo polyline the-map)
+    (doto the-map
+      (.fitBounds (.getBounds polyline)))))
+
 (defn map-view [data owner]
   (reify
     om/IRenderState
-    (render-state [this {:keys [entries]}]
+    (render-state [this {:keys [entries routes]}]
       (dom/div #js {:id "the-map"} "test!"))
     om/IWillMount
     (will-mount [_]
-      (GET "api/path/"
-           {:handler (fn [response]
-                       (om/transact! data :path (fn [_] (:path response))))
-            :error-handler (fn [error] (println error))}))
+      (let [routes (om/get-state owner :routes)]
+        (GET "api/routes/"
+             {:handler (fn [response]
+                         (put! routes (:route response)))
+              :error-handler (fn [error] (println error))})))
     om/IDidMount
     (did-mount [_]
       (let [entries (om/get-state owner :entries)
+            routes (om/get-state owner :routes)
             the-map (js/L.mapbox.map. "the-map" "bbrittain.lj6l79gh")]
         (doto the-map
-          (.setView (js/L.LatLng. 13.75 100.0) 8))
+          (.setView (js/L.LatLng. 13.75 100.0) 8)
+          (.on "move" #(js/console.log (.getBounds (.-target %)))))
         (go (loop []
               (let [entry (<! entries)]
                 (-> (entry->marker entry)
                     (.addTo the-map)
                     (.bindPopup (str "<a href=#/entry/" (:id entry) " >" (:title entry) "</a>")))
+                (recur))))
+        (go (loop []
+              (let [route (<! routes)]
+                (add-route the-map route)
                 (recur))))))))
 
 (defn page-view [data owner]
   (reify
     om/IInitState
     (init-state [_]
-      {:entries (chan)})
+      {:entries (chan)
+       :routes (chan)})
     om/IWillMount
     (will-mount [_]
       (let [entries (om/get-state owner :entries)]
-        (GET "api/entry/" {:handler (fn [response]
-                                      (doall
-                                        (map #(put! entries %) response))
-                                      (om/transact! data :entries (fn [_] response)))
-                           :error-handler (fn [error]
-                                            (println error))})))
+        (GET "api/entry/"
+             {:handler (fn [response]
+                         (doall
+                           (map #(put! entries %) response))
+                         (om/transact! data :entries (fn [_] response)))
+              :error-handler (fn [error]
+                               (println error))})))
     om/IRenderState
-    (render-state [this {:keys [entries]}]
+    (render-state [this {:keys [entries routes]}]
       (let [view (:view data)
             entry-id (:entry data)
             entry (first (seq (filter #(= (str (:id %)) entry-id) (:entries data))))]
@@ -113,10 +130,12 @@
                             :entry (dom/div #js {:className "entries"}
                                             (om/build read-view entry))
                             :entries (dom/div #js {:className "entries"}
-                                              (om/build entries-view data {:init-state {:entries entries}}))
+                                              (om/build entries-view data {:init-state {:entries entries
+                                                                                        :routes routes}}))
                             (dom/div #js {:className "blah"} nil))
                           (dom/div #js {:className "map"}
-                                   (om/build map-view data {:init-state {:entries entries}}))))))))
+                                   (om/build map-view data {:init-state {:entries entries
+                                                                         :routes routes}}))))))))
 
 ; Render root
 (defroute "/" [] (swap! app-state assoc :view :entries))

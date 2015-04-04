@@ -17,8 +17,9 @@
                  [markdown-clj "0.9.65"]
                  [cljs-ajax "0.3.10"]
 ; Clojure libs
-                 [yesql "0.4.0"]
+                 [org.postgis/postgis-jdbc "1.3.3"]
                  [org.postgresql/postgresql "9.3-1102-jdbc41"]
+                 [clj-postgresql "0.4.0"]
                  [ragtime "0.3.6"]
                  [clj-time "0.9.0"]
                  [fogus/ring-edn "0.2.0"]

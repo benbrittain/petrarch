@@ -1,2 +1,10 @@
-CREATE TABLE locations (id VARCHAR(20) PRIMARY KEY);
+CREATE TABLE locations
+(
+    "timestamp" timestamp with time zone,
+    point geometry,
+    altitude real,
+    accuracy real,
+    speed real
+)
+
 

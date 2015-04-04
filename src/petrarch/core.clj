@@ -3,7 +3,7 @@
             [org.httpkit.server :as http-kit]
             [ring.util.response :as resp]
             [ring.middleware.edn :as edn]
-            [petrarch.db :as db]
+            [petrarch.db.core :as db]
             [compojure.route :as route]
             [compojure.handler :refer [site]]
             [compojure.core :refer [defroutes GET POST PUT DELETE ANY context]])
@@ -31,7 +31,7 @@
 
 (defn save-coords [coords]
   (doseq [point coords]
-    (db/insert-point point)))
+    (db/insert-point! point)))
 
 (defroutes routes
   (GET "/" [] (resp/resource-response "index.html" {:root "public"}))

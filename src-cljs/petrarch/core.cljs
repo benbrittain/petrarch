@@ -25,9 +25,10 @@
     om/IDidMount
     (did-mount [_]
       (let [entries (om/get-state owner :entries)]
-        (GET (str "api/entry/" (:id entry)) {:handler (fn [response]
-                                                        (om/transact! entry :text (fn [_] (:text response))))
-                                             :error-handler (fn [error] (println error))})))
+        (GET (str "api/entry/" (:id entry))
+             {:handler (fn [response]
+                         (om/transact! entry :text (fn [_] (:text response))))
+              :error-handler (fn [error] (println error))})))
     om/IRender
     (render [this]
       (let [text (if (= (:text entry) nil)
@@ -54,8 +55,8 @@
     (render [this]
       (dom/div nil
                (apply dom/div nil
-                      (om/build-all entry-view (reverse (sort-by #(:id %) (:entries data)))))))))
-
+                      (om/build-all entry-view
+                                    (reverse (sort-by #(:id %) (:entries data)))))))))
 
 (defn entry->marker [entry]
   (js/L.marker. (js/L.LatLng. (:latitude entry) (:longitude entry))))
@@ -67,9 +68,10 @@
       (dom/div #js {:id "the-map"} "test!"))
     om/IWillMount
     (will-mount [_]
-      (GET "api/path/" {:handler (fn [response]
-                                   (om/transact! data :path (fn [_] (:path response))))
-                        :error-handler (fn [error] (println error))}))
+      (GET "api/path/"
+           {:handler (fn [response]
+                       (om/transact! data :path (fn [_] (:path response))))
+            :error-handler (fn [error] (println error))}))
     om/IDidMount
     (did-mount [_]
       (let [entries (om/get-state owner :entries)
@@ -81,7 +83,7 @@
                 (-> (entry->marker entry)
                     (.addTo the-map)
                     (.bindPopup (str "<a href=#/entry/" (:id entry) " >" (:title entry) "</a>")))
-                           (recur))))))))
+                (recur))))))))
 
 (defn page-view [data owner]
   (reify
@@ -106,7 +108,6 @@
                  (dom/div #js {:className "header"}
                           (dom/a #js {:href "#/"}
                                  (dom/h1 nil "Wandering through Indochina")))
-                 ;                          (dom/h2 nil "Ben Brittain"))
                  (dom/div #js {:className "wrapper"}
                           (condp = view
                             :entry (dom/div #js {:className "entries"}

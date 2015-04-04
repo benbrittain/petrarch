@@ -12,16 +12,32 @@
       :dbname "petrarch"
       :password "")))
 
-(defn insert-point! [point]
+(defn insert-point!
+  "puts a point into the sql database"
+  [point]
   (let [ts (:time point)
         altitude (:alt point)
         accuracy (:acc point)
         speed (:speed point)
         point (geo/point (:long point) (:lat point))]
     (jdbc/execute! @db ["INSERT INTO locations (timestamp, point, altitude, accuracy, speed)
-                        VALUES (?::timestamptz, ?::geometry, ?::int, ?::int, ?::int)"
+                         VALUES (?::timestamptz, ?::geometry, ?::real, ?::real, ?::real)"
                         (java.sql.Timestamp. (.getTime (java.util.Date. ts)))
                         point
                         altitude
                         accuracy
                         speed])))
+
+(defn get-points-in-region
+  "retrieves all points in a circle from point & radius"
+  [center-point radius]
+  (jdbc/query @db ["SELECT timestamp
+                     FROM locations
+                     WHERE ST_DWithin(
+                       point,
+                       ?::geometry,
+                       ?::real
+                     );"
+                   (geo/point (:lat center-point) (:long center-point))
+                   radius
+                   ]))

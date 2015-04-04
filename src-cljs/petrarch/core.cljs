@@ -8,6 +8,7 @@
             [ajax.core :refer [GET POST]]
             [cljs.core.async :refer [put! chan <! >!]]
             [petrarch.views :as views]
+            [petrarch.connection :as connection]
             [goog.events :as events]
             [goog.history.EventType :as EventType])
   (:import goog.History))
@@ -23,12 +24,7 @@
 
 ;; Initialize connection with backend
 
-(let [{:keys [chsk ch-recv send-fn state]}
-      (sente/make-channel-socket! "/chsk" {:type :auto})]
-  (def chsk       chsk)
-  (def ch-chsk    ch-recv) ; ChannelSocket's receive channel
-  (def chsk-send! send-fn) ; ChannelSocket's send API fn
-  (def chsk-state state))  ; Watchable, read-only atom
+(connection/initialize)
 
 
 ; Render root

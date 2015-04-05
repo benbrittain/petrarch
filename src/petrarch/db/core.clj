@@ -37,9 +37,13 @@
                        point,
                        ?::geography,
                        ?::real
-                     ) LIMIT 1000"
+                     )
+                   ORDER BY timestamp DESC,
+                            ST_Distance(point, ?::geography) DESC
+                   LIMIT 3000;"
                    (geo/point (:lat center-point) (:long center-point))
                    radius
+                   (geo/point (:lat center-point) (:long center-point))
                    ]))
 
 (defn get-1000-points

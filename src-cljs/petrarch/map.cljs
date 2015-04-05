@@ -9,15 +9,30 @@
 (defn entry->marker [entry]
   (js/L.marker. (js/L.LatLng. (:latitude entry) (:longitude entry))))
 
+(defn split-routes [points & [routes]]
+  (if (nil? routes)
+    (split-routes (rest points) [[(first points)]])
+    (if (empty? points)
+      routes
+      (if (> (.distanceTo (first points) (last (last routes))) 50)
+        (split-routes (rest points) (conj routes [(first points)]))
+        (split-routes (rest points)
+                      (conj (drop-last routes) (conj (last routes) (first points))))))))
+
 (defn add-route [the-map route]
-  (println "adding route to the map!")
   (let [latlngs (map (fn [a] {:lat (first (:coordinates (:point a)))
                               :long (second (:coordinates (:point a)))}) route)
-        points (map #(js/L.LatLng. (:lat %) (:long %)) latlngs)
-        polyline (js/L.polyline. (clj->js points))]
-    (.addTo polyline the-map)))
-;    (doto the-map
-;      (.fitBounds (.getBounds polyline)))))
+        points (map #(js/L.LatLng. (:lat %) (:long %)) latlngs)]
+    (go
+      (loop [points (rest points) acc [(first points)]]
+        (if (empty? points)
+          (let [polyline (js/L.polyline. (clj->js acc))]
+            (.addTo polyline the-map))
+          (if (> (.distanceTo (first points) (last acc)) 30)
+            (let [polyline (js/L.polyline. (clj->js acc))]
+              (.addTo polyline the-map)
+              (recur (rest (rest points)) [(first (rest points))]))
+            (recur (rest points) (conj acc (first points)))))))))
 
 (defn get-points [routes-chan & [center-point radius]]
   (conn/chsk-send! [:petrarch/get-routes {:center-point center-point

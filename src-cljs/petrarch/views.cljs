@@ -3,6 +3,7 @@
   (:require [om.core :as om :include-macros true]
             [om.dom :as dom :include-macros true]
             [petrarch.map :as map]
+            [petrarch.connection :as conn]
             [markdown.core :as markdown]
             [secretary.core :as secretary :refer-macros [defroute]]
             [ajax.core :refer [GET POST]]
@@ -81,4 +82,4 @@
                             (dom/div #js {:className "blah"} nil))
                           (dom/div #js {:className "map"}
                                    (om/build map/map-view data {:init-state {:entries entries
-                                                                         :routes routes}}))))))))
+                                                                             :routes routes}}))))))))

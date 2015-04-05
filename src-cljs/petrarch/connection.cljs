@@ -13,7 +13,6 @@
 (defmulti event-msg-handler :id)
 
 (defn event-msg-handler* [{:as ev-msg :keys [id ?data event]}]
-  (println "Event: " event)
   (event-msg-handler ev-msg))
 
 (do
@@ -29,6 +28,10 @@
     [{:as ev-msg :keys [?data]}]
     (println "Push event from server: " ?data))
   (defmethod event-msg-handler :chsk/handshake
+    [{:as ev-msg :keys [?data]}]
+    (let [[?uid ?csrf-token ?handshake-data] ?data]
+      (println "Handshake: " ?data)))
+  (defmethod event-msg-handler :route
     [{:as ev-msg :keys [?data]}]
     (let [[?uid ?csrf-token ?handshake-data] ?data]
       (println "Handshake: " ?data))))

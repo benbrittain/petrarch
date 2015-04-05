@@ -2,18 +2,35 @@
   (:require-macros [cljs.core.async.macros :refer [go go-loop]])
   (:require [om.core :as om :include-macros true]
             [om.dom :as dom :include-macros true]
+            [taoensso.sente :as sente]
+            [petrarch.connection :as conn]
             [cljs.core.async :refer [put! chan <! >!]]))
 
 (defn entry->marker [entry]
   (js/L.marker. (js/L.LatLng. (:latitude entry) (:longitude entry))))
 
 (defn add-route [the-map route]
-  (let [latlngs (map (fn [a] {:lat (second (:coordinates (:point a))) :long (first (:coordinates (:point a)))}) route)
+  (println "adding route to the map!")
+  (let [latlngs (map (fn [a] {:lat (first (:coordinates (:point a)))
+                              :long (second (:coordinates (:point a)))}) route)
         points (map #(js/L.LatLng. (:lat %) (:long %)) latlngs)
         polyline (js/L.polyline. (clj->js points))]
-    (.addTo polyline the-map)
-    (doto the-map
-      (.fitBounds (.getBounds polyline)))))
+    (.addTo polyline the-map)))
+;    (doto the-map
+;      (.fitBounds (.getBounds polyline)))))
+
+(defn get-points [routes-chan & [center-point radius]]
+  (conn/chsk-send! [:petrarch/get-routes {:center-point center-point
+                                          :radius radius}] 5000
+                   (fn [edn-reply]
+                     (if (sente/cb-success? edn-reply)
+                       (put! routes-chan (:routes edn-reply))
+                       (println "Error!")))))
+
+(defn route-update [routes-chan latlng bounds]
+  (let [radius (.distanceTo latlng (.getNorthEast bounds))
+        center-point {:lat (.-lat latlng) :long (.-lng latlng)}]
+      (get-points routes-chan center-point radius)))
 
 (defn map-view [data owner]
   (reify
@@ -22,19 +39,19 @@
       (dom/div #js {:id "the-map"} "Rendering Map..."))
     om/IWillMount
     (will-mount [_]
-      (let [routes (om/get-state owner :routes)]))
-;        (GET "api/routes/"
-;             {:handler (fn [response]
-;                         (put! routes (:route response)))
-;              :error-handler (fn [error] (println error))})))
+      (let [routes (om/get-state owner :routes)]
+        (get-points routes)))
     om/IDidMount
     (did-mount [_]
       (let [entries (om/get-state owner :entries)
             routes (om/get-state owner :routes)
             the-map (js/L.mapbox.map. "the-map" "bbrittain.lj6l79gh")]
         (doto the-map
-          (.setView (js/L.LatLng. 13.75 100.0) 8)
-          (.on "move" #(js/console.log (.getBounds (.-target %)))))
+;          (.setView (js/L.LatLng. 13.75 100.0) 8)
+          (.setView (js/L.LatLng. 42.36 -71.09) 10)
+          (.on "moveend" #(route-update routes
+                                        (.getCenter (.-target %))
+                                        (.getBounds (.-target %)))))
         (go (loop []
               (let [entry (<! entries)]
                 (-> (entry->marker entry)

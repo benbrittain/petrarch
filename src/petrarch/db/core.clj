@@ -1,6 +1,5 @@
 (ns petrarch.db.core
-  (:require [clojure.java.jdbc :as jdbc]
-            [clj-postgresql.core :as pg]
+  (:require [clojure.java.jdbc :as jdbc] [clj-postgresql.core :as pg]
             [clj-postgresql.spatial :as geo])
   (:import [org.postgis PGgeometry Point PGgeometryLW]))
 
@@ -19,7 +18,7 @@
         altitude (:alt point)
         accuracy (:acc point)
         speed (:speed point)
-        point (geo/point (:long point) (:lat point))]
+        point (geo/point (:lat point) (:long point))]
     (jdbc/execute! @db ["INSERT INTO locations (timestamp, point, altitude, accuracy, speed)
                          VALUES (?::timestamptz, ?::geometry, ?::real, ?::real, ?::real)"
                         (java.sql.Timestamp. (.getTime (java.util.Date. ts)))
@@ -31,18 +30,19 @@
 (defn get-points-in-region
   "retrieves all points in a circle from point & radius"
   [center-point radius]
-  (jdbc/query @db ["SELECT timestamp
+  ; TODO make the LIMIT a sample of the points
+  (jdbc/query @db ["SELECT point
                      FROM locations
                      WHERE ST_DWithin(
                        point,
-                       ?::geometry,
+                       ?::geography,
                        ?::real
-                     );"
+                     ) LIMIT 1000"
                    (geo/point (:lat center-point) (:long center-point))
                    radius
                    ]))
 
-(defn get-500-points
-  "retrieves 500 points - testing"
+(defn get-1000-points
+  "retrieves 1000 points - testing"
   []
-  (jdbc/query @db ["SELECT point FROM locations LIMIT 500"]))
+  (jdbc/query @db ["SELECT point FROM locations LIMIT 1000"]))

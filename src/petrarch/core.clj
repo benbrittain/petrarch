@@ -29,17 +29,20 @@
 (do
   (defmethod event-msg-handler :default
     [{:as ev-msg :keys [event id ?data ring-req ?reply-fn send-fn]}]
-    (let [session (:session ring-req)
-          uid (:uid session)]
+    (let [session (:session ring-req) uid (:uid session)]
       (println "Unhandled event: " event)
       (when ?reply-fn
         (?reply-fn {:umatched-event-as-echoed-from-from-server event}))))
 
-  ;; Add your (defmethod event-msg-handler <event-id> [ev-msg] <body>)s here...
-  )
+  (defmethod event-msg-handler :petrarch/get-routes
+    [{:as ev-msg :keys [event id ?data ring-req ?reply-fn send-fn]}]
+    (let [session   (:session ring-req)
+          uid       (:uid session)]
+      (if (nil? (:center-point ?data))
+        (?reply-fn {:routes (into [] (db/get-1000-points))})
+        (?reply-fn {:routes (into [] (db/get-points-in-region (:center-point ?data) (:radius ?data)))})))))
 
 (sente/start-chsk-router! ch-chsk event-msg-handler*)
-
 
 (defn generate-response [data & [status]]
   {:status (or status 200)
@@ -70,7 +73,7 @@
                               (generate-response {:text "good"}))))
   (GET "/api/routes/" [] (fn [req]
                            (let [edn (:params req)
-                                 route (into [] (db/get-5000-points))]
+                                 route (into [] (db/get-1000-points))]
                              (generate-response {:route route}))))
   (GET  "/chsk" req (ring-ajax-get-or-ws-handshake req))
   (POST "/chsk" req (ring-ajax-post                req))

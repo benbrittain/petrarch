@@ -7,7 +7,9 @@
             [cljs.core.async :refer [put! chan <! >!]]))
 
 (defn entry->marker [entry]
-  (js/L.marker. (js/L.LatLng. (:latitude entry) (:longitude entry))))
+  (let [latitude  (first (:coordinates (:point entry)))
+        longitude (second (:coordinates (:point entry)))]
+  (js/L.marker. (js/L.LatLng. latitude longitude))))
 
 (defn split-routes [points & [routes]]
   (if (nil? routes)

@@ -16,7 +16,8 @@
       (let [entries (om/get-state owner :entries)]
         (GET (str "api/entry/" (:id entry))
              {:handler (fn [response]
-                         (om/transact! entry :text (fn [_] (:text response))))
+                         (println response)
+                         (om/transact! entry :text (fn [_] "oh hey")))
               :error-handler (fn [error] (println error))})))
     om/IRender
     (render [this]
@@ -47,6 +48,37 @@
                (om/build-all entry-view
                  (reverse (sort-by #(:id %) (:entries data)))))))))
 
+
+(defn send-post [owner]
+    (let [password (om/get-node owner "password")
+          post-text (om/get-node owner "post")
+          title (om/get-node owner "title")
+          submit-post (fn [position]
+                        (let [longitude (.-longitude js/position.coords)
+                              latitude (.-latitude js/position.coords)]
+                          (POST "api/entry/" {:params {:password (.-value password)
+                                                       :title (.-value title)
+                                                       :post (.-value post-text)
+                                                       :location {:lat latitude
+                                                                  :long longitude}}
+                                              :format :edn
+                                              :handler (fn [response]
+                                                         (println response))
+                                              :error-handler (fn [error]
+                                                               (println error))})))]
+      (.getCurrentPosition js/navigator.geolocation submit-post)))
+
+(defn new-entry-view [data owner]
+  (reify
+    om/IRender
+    (render [this]
+      (dom/div nil
+               (dom/h2 nil "Submit a post")
+               (dom/input #js {:type "text" :ref "password"})
+               (dom/input #js {:type "text" :ref "title"})
+               (dom/input #js {:type "text" :ref "post"})
+               (dom/button #js {:onClick #(send-post owner)} "Submit post")))))
+
 (defn page-view [data owner]
   (reify
     om/IInitState
@@ -55,12 +87,13 @@
        :routes (chan)})
     om/IWillMount
     (will-mount [_]
-      (let [entries (om/get-state owner :entries)]
+      (let [entries-chan (om/get-state owner :entries)]
         (GET "api/entry/"
              {:handler (fn [response]
-                         (doall
-                           (map #(put! entries %) response))
-                         (om/transact! data :entries (fn [_] response)))
+                         (let [entries (into [] (:entries response))]
+                           (doall
+                             (map #(put! entries-chan %) entries))
+                           (om/transact! data :entries (fn [_] entries))))
               :error-handler (fn [error]
                                (println error))})))
     om/IRenderState
@@ -79,7 +112,9 @@
                             :entries (dom/div #js {:className "entries"}
                                               (om/build entries-view data {:init-state {:entries entries
                                                                                         :routes routes}}))
-                            (dom/div #js {:className "blah"} nil))
+                            :new-entry (dom/div #js {:className "entries new-entry"}
+                                                (om/build new-entry-view {:init-state {}}))
+                            (dom/div #js {:className "blah"} "how did you get here..."))
                           (dom/div #js {:className "map"}
                                    (om/build map/map-view data {:init-state {:entries entries
                                                                              :routes routes}}))))))))

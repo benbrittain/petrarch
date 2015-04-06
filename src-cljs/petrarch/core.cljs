@@ -23,12 +23,11 @@
      :entry 0}))
 
 ;; Initialize connection with backend
-
 (connection/initialize)
-
 
 ; Render root
 (defroute "/" [] (swap! app-state assoc :view :entries))
+(defroute "/entry-new" [] (swap! app-state assoc :view :new-entry))
 (defroute "/entry/:entry-id" [entry-id] (swap! app-state assoc :view :entry :entry entry-id))
 
 (om/root views/page-view app-state

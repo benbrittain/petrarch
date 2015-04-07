@@ -9,6 +9,22 @@ html, body, #app {
     font-family: 'FiraSans', 'Helvetica', sans-serif;
 }
 
+.new-entries {
+    width:100%;
+}
+
+ul {
+    list-style: none;
+}
+
+.new-entries li {
+    padding: 10px;
+}
+
+.new-entries #post {
+    width: 100%;
+}
+
 .wrapper {
     height: 98%;
     display: flex;
@@ -95,7 +111,11 @@ a {
 }
 
 .read {
-    padding: 10px;
+    padding: 20px;
+}
+
+.read p {
+    font-size: 20px;
 }
 
 

@@ -1,5 +1,6 @@
 (ns petrarch.db.core
-  (:require [clojure.java.jdbc :as jdbc] [clj-postgresql.core :as pg]
+  (:require [clojure.java.jdbc :as jdbc]
+            [clj-postgresql.core :as pg]
             [clj-postgresql.spatial :as geo])
   (:import [org.postgis PGgeometry Point PGgeometryLW]))
 
@@ -10,6 +11,31 @@
       :user "dev"
       :dbname "petrarch"
       :password "")))
+
+(defn insert-entry!
+  "creates an entry in the sql database"
+  [title post-text location]
+  (jdbc/execute! @db ["INSERT INTO entries (title, timestamp, point, post)
+                      VALUES (?::text, ?::timestamptz, ?::geometry, ?::text)"
+                      title
+                      (java.sql.Timestamp. (.getTime (java.util.Date.)))
+                      (geo/point (:lat location) (:long location))
+                      post-text]))
+
+(defn get-entry
+  "retrieves the text of a specific entry"
+  [id]
+  (jdbc/query @db ["SELECT post
+                     FROM entries
+                     WHERE id = ?::int"
+                   id]))
+
+(defn get-entries
+  "retrieve the indexes, title, ts & location of the entries"
+  []
+  (jdbc/query @db ["SELECT id, title, timestamp, point
+                   FROM entries
+                   ORDER BY id DESC; "]))
 
 (defn insert-point!
   "puts a point into the sql database"

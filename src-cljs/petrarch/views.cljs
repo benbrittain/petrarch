@@ -16,8 +16,7 @@
       (let [entries (om/get-state owner :entries)]
         (GET (str "api/entry/" (:id entry))
              {:handler (fn [response]
-                         (println response)
-                         (om/transact! entry :text (fn [_] "oh hey")))
+                         (om/transact! entry :text (fn [_] (:text response))))
               :error-handler (fn [error] (println error))})))
     om/IRender
     (render [this]
@@ -49,6 +48,18 @@
                  (reverse (sort-by #(:id %) (:entries data)))))))))
 
 
+(defn send-file [owner]
+  (let [password (.-value (om/get-node owner "password"))
+        filename (.-value (om/get-node owner "filename"))
+        image (.item (.-files (.getElementById js/document "image-upload")) 0)
+        form-data (doto
+                    (js/FormData.)
+                    (.append "password" password)
+                    (.append "file" image filename))]
+    (POST "api/image/" {:params form-data
+                        :response-format :edn})))
+
+
 (defn send-post [owner]
     (let [password (om/get-node owner "password")
           post-text (om/get-node owner "post")
@@ -73,11 +84,22 @@
     om/IRender
     (render [this]
       (dom/div nil
-               (dom/h2 nil "Submit a post")
-               (dom/input #js {:type "text" :ref "password"})
-               (dom/input #js {:type "text" :ref "title"})
-               (dom/input #js {:type "text" :ref "post"})
-               (dom/button #js {:onClick #(send-post owner)} "Submit post")))))
+        (dom/div nil
+                 (dom/h2 nil "Submit a post")
+                 (dom/ul nil
+                         (dom/li nil
+                                 (dom/input #js {:type "text" :ref "password" :placeholder "password"}))
+                         (dom/li nil
+                                 (dom/input #js {:type "text" :ref "title" :placeholder "title" }))
+                         (dom/li nil
+                                 (dom/textarea #js {:style #js {:width 300 :height 300}
+                                                    :id "post" :type "text" :ref "post"}))
+                         (dom/li nil
+                                 (dom/button #js {:onClick #(send-post owner)} "Submit post"))))
+        (dom/div nil
+          (dom/input #js {:type "text" :ref "filename" :placeholder "file name"})
+          (dom/input #js {:type "file" :id "image-upload"})
+          (dom/button #js {:onClick #(send-file owner)} "Submit post"))))))
 
 (defn page-view [data owner]
   (reify

@@ -3,6 +3,8 @@
             [org.httpkit.server :as http-kit]
             [ring.util.response :as resp]
             [ring.middleware.edn :as edn]
+            [ring.middleware.multipart-params :as mp]
+            [clojure.java.io :as io]
             [taoensso.sente :as sente]
             [taoensso.sente.server-adapters.http-kit :refer (sente-web-server-adapter)]
             [petrarch.db.core :as db]
@@ -68,6 +70,10 @@
   (doseq [point coords]
     (db/insert-point! point)))
 
+(defn save-file [username file]
+  (println username)
+  (println file))
+
 (defroutes routes
   (GET "/" [] (resp/resource-response "index.html" {:root "public"}))
   (GET "/api/entry/" [] (get-entries-index))
@@ -84,6 +90,13 @@
                            (let [edn (:params req)
                                  route (into [] (db/get-1000-points))]
                              (generate-response {:route route}))))
+  (mp/wrap-multipart-params
+    (POST "/api/image/" [] (fn [req]
+                             (let [edn (:params req)]
+                               (println edn)
+                               (io/copy (io/file (:tempfile (:file edn)))
+                                        (io/file (str "resources/public/images/" (:filename (:file edn)))))
+                               (generate-response {:text "good"})))))
   (GET  "/chsk" req (ring-ajax-get-or-ws-handshake req))
   (POST "/chsk" req (ring-ajax-post                req))
   (route/resources "/")

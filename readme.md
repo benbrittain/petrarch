@@ -2,6 +2,10 @@
 ### A travelblog for Ben's trip in SE Asia
 #### GPS tracking included
 
+```
+ “Tourist, Rincewind decided, meant 'idiot'.” -- Terry Pratchet
+```
+
 ## Install
 You must have jre-7, clojure, leiningen, postgres/postgis
 ```

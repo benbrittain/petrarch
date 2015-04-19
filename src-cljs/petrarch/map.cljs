@@ -22,7 +22,8 @@
   (let [latlngs (map (fn [a] {:lat (first a)
                               :long (second a)}) route)
         points (map #(js/L.LatLng. (:lat %) (:long %)) latlngs)]
-    (.addTo (js/L.polyline. (clj->js points)) the-map)))
+    (.addTo (js/L.polyline. (clj->js points)
+                            #js {:color "#AA0000" :clickable false}) the-map)))
 
 (defn get-routes [routes-chan center-point radius]
   (GET (str "api/routes?lat=" (:lat center-point)
@@ -46,9 +47,11 @@
     (did-mount [_]
       (let [entries (om/get-state owner :entries)
             routes (om/get-state owner :routes)
-            the-map (js/L.mapbox.map. "the-map" "bbrittain.lj6l79gh")]
+            the-map (js/L.mapbox.map. "the-map"
+                                      "bbrittain.lj6l79gh"
+                                      #js {:maxZoom 13})]
         (doto the-map
-;          (.setView (js/L.LatLng. 13.75 100.0) 8)
+          ;(.setView (js/L.LatLng. 13.75 102.0) 7)
           (.setView (js/L.LatLng. 42.36 -71.09) 14)
           (.on "zoomend" #(remove-routes the-map))
           (.on "moveend" #(route-update routes

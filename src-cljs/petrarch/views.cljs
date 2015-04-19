@@ -125,7 +125,10 @@
         (dom/div #js {:id "app"}
                  (dom/div #js {:className "header"}
                           (dom/a #js {:href "#/"}
-                                 (dom/h1 nil "Wandering through Indochina")))
+                                 (dom/h1 #js {:className "title"}
+                                         "Wandering through Indochina"))
+                          (dom/h1 #js {:className "subtitle"}
+                                  "Ben Brittain"))
                  (dom/div #js {:className "wrapper"}
                           (condp = view
                             :entry (dom/div #js {:className "entries"}

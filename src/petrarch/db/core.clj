@@ -40,7 +40,7 @@
 (defn get-route
   "turn gps points into postgis line"
   [lat lng radius]
-  (jdbc/query @db ["SELECT ST_Simplify(ST_MakeLine(point ORDER BY timestamp), 0.00001) As route
+  (jdbc/query @db ["SELECT ST_Simplify(ST_MakeLine(point ORDER BY timestamp), 0.001) As route
                    FROM locations
                    WHERE ST_DWithin(point,
                                     ?::geography,

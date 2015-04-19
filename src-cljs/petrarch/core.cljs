@@ -8,7 +8,6 @@
             [ajax.core :refer [GET POST]]
             [cljs.core.async :refer [put! chan <! >!]]
             [petrarch.views :as views]
-            [petrarch.connection :as connection]
             [goog.events :as events]
             [goog.history.EventType :as EventType])
   (:import goog.History))
@@ -21,9 +20,6 @@
     {:entries []
      :view :entries
      :entry 0}))
-
-;; Initialize connection with backend
-(connection/initialize)
 
 ; Render root
 (defroute "/" [] (swap! app-state assoc :view :entries))

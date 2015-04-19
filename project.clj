@@ -20,7 +20,6 @@
                  [org.postgis/postgis-jdbc "1.3.3"]
                  [org.postgresql/postgresql "9.3-1102-jdbc41"]
                  [clj-postgresql "0.4.0"]
-                 [com.taoensso/sente "1.4.1"]
                  [fogus/ring-edn "0.2.0"]
                  [http-kit "2.1.18"]
                  [lib-noir "0.8.7"]

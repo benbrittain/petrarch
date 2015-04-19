@@ -27,8 +27,7 @@
   [id]
   (jdbc/query @db ["SELECT post
                      FROM entries
-                     WHERE id = ?::int"
-                   id]))
+                     WHERE id = ?::int" id]))
 
 (defn get-entries
   "retrieve the indexes, title, ts & location of the entries"
@@ -36,6 +35,19 @@
   (jdbc/query @db ["SELECT id, title, timestamp, point
                    FROM entries
                    ORDER BY id DESC; "]))
+
+
+(defn get-route
+  "turn gps points into postgis line"
+  [lat lng radius]
+  (jdbc/query @db ["SELECT ST_Simplify(ST_MakeLine(point ORDER BY timestamp), 0.00001) As route
+                   FROM locations
+                   WHERE ST_DWithin(point,
+                                    ?::geography,
+                                    ?::real);"
+                   (geo/point lat lng)
+                   (* radius 1.2)
+                   ]))
 
 (defn insert-point!
   "puts a point into the sql database"
@@ -52,6 +64,22 @@
                         altitude
                         accuracy
                         speed])))
+;(defn get-route
+;  "retrieves all points in a circle from point & radius"
+;  [lat lng radius]
+;  (jdbc/query @db ["SELECT point
+;                     FROM locations
+;                     WHERE ST_DWithin(
+;                       point,
+;                       ?::geography,
+;                       ?::real
+;                     )
+;                   ORDER BY ST_Distance(point, ?::geography) DESC
+;                   LIMIT 10000;"
+;                   (geo/point lat lng)
+;                   radius
+;                   (geo/point lat lng)
+;                   ]))
 
 (defn get-points-in-region
   "retrieves all points in a circle from point & radius"

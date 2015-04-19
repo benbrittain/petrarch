@@ -39,7 +39,6 @@ ul {
 .header {
     flex-flow: row wrap;
     text-align: center;
-    height: 4%;
     border-bottom: 3px #265858 solid;
     margin: 0 !important;
     padding: 0 !important;
@@ -77,6 +76,7 @@ a {
     color: black;
     text-decoration: none;
 }
+
 .entries a {
     color: black;
 }

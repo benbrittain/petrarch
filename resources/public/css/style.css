@@ -18,7 +18,7 @@ ul {
 }
 
 .wrapper {
-    height: 95%;
+    height: 96%;
     display: flex;
     flex-flow: row wrap;
     position: relative;
@@ -34,7 +34,7 @@ ul {
 }
 
 .title {
-    font-size: 5em;
+    font-size: 4em;
     margin: 2px;
 }
 
@@ -47,7 +47,7 @@ ul {
     display:block;
     margin:auto;
     padding-left: 30px;
-    font-size: 1.6em;
+    font-size: 1.2em;
     border-top: 3px #CCC56B solid;
     text-align: left;
 }

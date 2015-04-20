@@ -80,25 +80,31 @@
 
 (defn new-entry-view [data owner]
   (reify
+    om/IDidMount
+    (did-mount [_]
+      (let [editor (js/EpicEditor. #js {:theme #js {:base "/../js/epiceditor/themes/base/epiceditor.css"
+                                                    :preview "/../js/epiceditor/themes/preview/preview-dark.css"
+                                                    :editor "/../js/epiceditor/themes/editor/epic-dark.css"}})]
+        (doto editor
+            (.load))))
     om/IRender
     (render [this]
       (dom/div nil
         (dom/div nil
                  (dom/h2 nil "Submit a post")
-                 (dom/ul nil
-                         (dom/li nil
-                                 (dom/input #js {:type "text" :ref "password" :placeholder "password"}))
-                         (dom/li nil
-                                 (dom/input #js {:type "text" :ref "title" :placeholder "title" }))
-                         (dom/li nil
-                                 (dom/textarea #js {:style #js {:width 300 :height 300}
-                                                    :id "post" :type "text" :ref "post"}))
-                         (dom/li nil
-                                 (dom/button #js {:onClick #(send-post owner)} "Submit post"))))
-        (dom/div nil
+                 (dom/div nil
+                         (dom/input #js {:type "text" :ref "password" :placeholder "password"}))
+                 (dom/div nil
+                         (dom/input #js {:type "text" :ref "title" :placeholder "title" }))
+                 (dom/div #js {:id "epiceditor"}
+                          (dom/textarea #js {:style #js {:width 300 :height 300}
+                                             :id "post" :type "text" :ref "post"}))
+                 (dom/div nil
+                         (dom/button #js {:onClick #(send-post owner)} "Submit post")))
+               (dom/div nil
           (dom/input #js {:type "text" :ref "filename" :placeholder "file name"})
           (dom/input #js {:type "file" :id "image-upload"})
-          (dom/button #js {:onClick #(send-file owner)} "Submit post"))))))
+          (dom/button #js {:onClick #(send-file owner)} "Upload Image"))))))
 
 (defn page-view [data owner]
   (reify

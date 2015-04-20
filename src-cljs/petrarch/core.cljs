@@ -4,7 +4,6 @@
             [om.dom :as dom :include-macros true]
             [markdown.core :as markdown]
             [secretary.core :as secretary :refer-macros [defroute]]
-            [taoensso.sente  :as sente :refer (cb-success?)]
             [ajax.core :refer [GET POST]]
             [cljs.core.async :refer [put! chan <! >!]]
             [petrarch.views :as views]

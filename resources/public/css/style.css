@@ -40,12 +40,16 @@ ul {
     flex-flow: row wrap;
     text-align: center;
     border-bottom: 3px #265858 solid;
-    margin: 0 !important;
-    padding: 0 !important;
 }
 
-h1 {
-    height: 80px;
+.title {
+    font-size: 50px;
+    margin: 2px;
+}
+
+.subtitle {
+    margin: 2px;
+    font-size: 30px;
 }
 
 .footer {
@@ -68,7 +72,7 @@ h1 {
     background-color: #A4CDB3;
     font-size: 30px;
     padding: 10px;
-    margin: 10px;
+    margin: 5px;
     border: 1px black solid;
 }
 

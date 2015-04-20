@@ -2,15 +2,11 @@
     font-family: 'FiraSans';
     src: url('/css/FiraSans.woff');
 }
+
 html, body, #app {
-    height: 99%;
-    background-image: url("/images/ricepaper.png");
+    height: 97%;
     background-color: #FDF6EE;
     font-family: 'FiraSans', 'Helvetica', sans-serif;
-}
-
-.new-entries {
-    width:100%;
 }
 
 ul {
@@ -21,12 +17,8 @@ ul {
     padding: 10px;
 }
 
-.new-entries #post {
-    width: 100%;
-}
-
 .wrapper {
-    height: 98%;
+    height: 95%;
     display: flex;
     flex-flow: row wrap;
     position: relative;
@@ -39,41 +31,57 @@ ul {
 .header {
     flex-flow: row wrap;
     text-align: center;
-    border-bottom: 3px #265858 solid;
 }
 
 .title {
-    font-size: 50px;
+    font-size: 5em;
     margin: 2px;
 }
 
 .subtitle {
     margin: 2px;
-    font-size: 30px;
+    font-size: 2.5em;
 }
 
 .footer {
-    border: 1px black solid;
+    display:block;
+    margin:auto;
+    padding-left: 30px;
+    font-size: 1.6em;
+    border-top: 3px #CCC56B solid;
+    text-align: left;
+}
+
+.footer a {
+    color: green;
+    text-decoration: none;
 }
 
 .entries {
     text-align: left;
     flex: 1 100%;
     overflow-y: auto;
+    overflow-x: hidden;
     min-height: 100px;
+    max-height: 100%;
 }
 
 .entry {
     display: flex;
     flex: 1 100%;
     height: 80px;
-    justify-content: left;
-    align-items: center;
     background-color: #A4CDB3;
     font-size: 30px;
-    padding: 10px;
-    margin: 5px;
+    padding: 20px;
+    margin-bottom: 10px;
+    margin-left: 5px;
+    margin-right: 5px;
     border: 1px black solid;
+    flex-direction: column;
+}
+
+.date {
+    align-self: flex-end;
 }
 
 a {
@@ -104,22 +112,40 @@ a {
     color: #3A6872;
 }
 
-
 .map {
     display: flex;
 }
 
 #the-map {
-    border-left: 3px #265858 solid;
+    border-top: 4px #CCC56B solid;
+    border-left: 4px #CCC56B solid;
     flex: 1;
 }
 
-.read {
-    padding: 20px;
+#markdown {
+    font-size: 22px;
+    padding-left: 40px;
+    justify-content: left;
+    text-align: left;
 }
 
-.read p {
-    font-size: 20px;
+.read h1{
+    text-align: center;
+    padding: 0px;
+    margin: 0px;
+}
+
+.read {
+    font-size: 24px;
+    width: 100%;
+}
+
+.read img {
+    border: 1px black solid;
+    width: 80%;
+    background-size: contain;
+    display:block;
+    margin:auto;
 }
 
 
@@ -141,3 +167,4 @@ a {
     .entries   { order: 1; }
     .map       { order: 2; }
     .footer    { order: 3; }
+}

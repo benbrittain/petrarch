@@ -8,6 +8,11 @@
             [ajax.core :refer [GET POST]]
             [cljs.core.async :refer [put! chan <! >!]]))
 
+(defn ts->date [ts]
+  (println (clj->js ts))
+  (dom/p nil
+         (.toLocaleString (clj->js ts))))
+
 (defn read-view [entry owner]
   (reify
     om/IDidMount
@@ -25,7 +30,7 @@
         (dom/div #js {:className "read"}
                  (dom/div #js {:id "title"}
                           (dom/h1 nil (:title entry))
-                          (dom/h2 nil (:date entry)))
+                          (dom/h2 nil (ts->date (:timestamp entry))))
                  (dom/div #js {:id "markdown" :dangerouslySetInnerHTML #js {:__html text}}
                           nil))))))
 
@@ -35,8 +40,10 @@
     (render [this]
               (dom/a #js {:href (str "#/entry/" (:id entry))}
                      (dom/div #js {:className "entry"}
-                              (:title entry))))))
-
+                              (dom/span #js {:className "titlee"}
+                                        (:title entry))
+                              (dom/span #js {:className "date"}
+                                        (ts->date (:timestamp entry))))))))
 (defn entries-view [data owner]
   (reify
     om/IRender
@@ -132,9 +139,9 @@
                  (dom/div #js {:className "header"}
                           (dom/a #js {:href "#/"}
                                  (dom/h1 #js {:className "title"}
-                                         "Wandering through Indochina"))
+                                         "\"Tourist, means Idiot.\""))
                           (dom/h1 #js {:className "subtitle"}
-                                  "Ben Brittain"))
+                                  "Ben Brittain's meanderings through Indochina"))
                  (dom/div #js {:className "wrapper"}
                           (condp = view
                             :entry (dom/div #js {:className "entries"}
@@ -147,4 +154,15 @@
                             (dom/div #js {:className "blah"} "how did you get here..."))
                           (dom/div #js {:className "map"}
                                    (om/build map/map-view data {:init-state {:entries entries
-                                                                             :routes routes}}))))))))
+                                                                             :routes routes}})))
+                 (dom/div #js {:className "footer"}
+                          (dom/p nil
+                                 "© Ben Brittain. Shared under the "
+                          (dom/a #js {:href "http://creativecommons.org/licenses/by/4.0/"}
+                                 "Creative Commons Attribution 4.0 International License")
+                                 ". "
+                          (dom/a #js {:href "https://github.com/cavedweller/petrarch"}
+                                 "Source code")
+                                 " licensed under "
+                          (dom/a #js {:href "https://www.gnu.org/licenses/gpl-3.0.txt"}
+                                 "GNU GPLv3") ".")))))))

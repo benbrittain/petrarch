@@ -49,10 +49,9 @@
             routes (om/get-state owner :routes)
             the-map (js/L.mapbox.map. "the-map"
                                       "bbrittain.lj6l79gh"
-                                      #js {:maxZoom 13})]
+                                      #js {:maxZoom 12})]
         (doto the-map
-          ;(.setView (js/L.LatLng. 13.75 102.0) 7)
-          (.setView (js/L.LatLng. 42.36 -71.09) 14)
+          (.setView (js/L.LatLng. 13.75 102.0) 7)
           (.on "zoomend" #(remove-routes the-map))
           (.on "moveend" #(route-update routes
                                         (.getCenter (.-target %))

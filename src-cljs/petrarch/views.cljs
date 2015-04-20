@@ -29,8 +29,7 @@
                    (markdown/md->html (:text entry)))]
         (dom/div #js {:className "read"}
                  (dom/div #js {:id "title"}
-                          (dom/h1 nil (:title entry))
-                          (dom/h3 nil (ts->date (:timestamp entry))))
+                          (dom/h1 nil (:title entry)))
                  (dom/div #js {:id "markdown" :dangerouslySetInnerHTML #js {:__html text}}
                           nil))))))
 

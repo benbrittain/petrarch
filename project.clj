@@ -25,7 +25,8 @@
                  [lib-noir "0.8.7"]
                  [compojure "1.1.8"]
                  [ring-server "0.3.1"]
-                 [environ "1.0.0"]]
+                 [environ "1.0.0"]
+                 [gsnewmark/ring-pratchett "0.1.0"]]
 
   :plugins [[lein-cljsbuild "1.0.4"]
             [lein-figwheel "0.2.5-SNAPSHOT"]

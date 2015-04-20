@@ -4,6 +4,7 @@
             [ring.util.response :as resp]
             [ring.middleware.edn :as edn]
             [ring.middleware.multipart-params :as mp]
+            [ring.middleware.pratchett :refer [wrap-pratchett]]
             [clojure.java.io :as io]
             [petrarch.db.core :as db]
             [environ.core :refer [env]]
@@ -77,7 +78,8 @@
 
 (def app
   (-> routes
-      edn/wrap-edn-params))
+      edn/wrap-edn-params
+      wrap-pratchett))
 
 (defonce server
          (atom nil))

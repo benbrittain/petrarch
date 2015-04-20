@@ -24,11 +24,13 @@
                  [http-kit "2.1.18"]
                  [lib-noir "0.8.7"]
                  [compojure "1.1.8"]
-                 [ring-server "0.3.1"]]
+                 [ring-server "0.3.1"]
+                 [environ "1.0.0"]]
 
   :plugins [[lein-cljsbuild "1.0.4"]
             [lein-figwheel "0.2.5-SNAPSHOT"]
-            [ragtime/ragtime.lein "0.3.6"]]
+            [ragtime/ragtime.lein "0.3.6"]
+            [lein-environ "1.0.0"]]
 
   :source-paths ["src" "src-cljs"]
 

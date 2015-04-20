@@ -6,11 +6,13 @@
             [ring.middleware.multipart-params :as mp]
             [clojure.java.io :as io]
             [petrarch.db.core :as db]
+            [environ.core :refer [env]]
             [compojure.route :as route]
             [compojure.handler :refer [site]]
             [compojure.core :refer [defroutes GET POST PUT DELETE ANY context]])
   (:gen-class))
 
+(def password (env :password))
 
 (defn generate-response [data & [status]]
   {:status (or status 200)
@@ -19,7 +21,6 @@
 
 (defn get-entries-index []
   (let [entries (db/get-entries)]
-    (println entries)
     (generate-response {:entries entries})))
 
 (defn get-entry [id]
@@ -41,13 +42,19 @@
   (GET "/api/entry/" [] (get-entries-index))
   (POST "/api/entry/" [] (fn [req]
                            (let [edn (:params req)]
-                             (create-entry (:title edn) (:post edn) (:location edn))
-                             (generate-response {:text "good"}))))
+                             (if (= (:password edn) password)
+                               (do
+                                 (create-entry (:title edn) (:post edn) (:location edn))
+                                 (generate-response {:text "good"}))
+                               (generate-response {:text "bad passphrase"} 418)))))
   (GET "/api/entry/:id" [id] (get-entry id))
   (POST "/api/routes/" [] (fn [req]
                             (let [edn (:params req)]
-                              (save-coords (:coords edn))
-                              (generate-response {:text "good"}))))
+                             (if (= (:password edn) password)
+                               (do
+                                 (save-coords (:coords edn))
+                                 (generate-response {:text "good"}))
+                               (generate-response {:text "bad passphrase"} 418)))))
   (GET "/api/routes" [] (fn [req]
                            (let [edn (:params req) lat (:lat edn)
                                  lng (:long edn) radius (:radius edn)]
@@ -58,11 +65,12 @@
   (mp/wrap-multipart-params
     (POST "/api/image/" [] (fn [req]
                              (let [edn (:params req)]
-                               (println edn)
-                               (io/copy (io/file (:tempfile (:file edn)))
-                                        (io/file (str "resources/public/images/" (:filename (:file edn)))))
-                               (generate-response {:text "good"})))))
-  (route/resources "/")
+                               (if (= (:password edn) password)
+                                 (do (io/copy (io/file (:tempfile (:file edn)))
+                                              (io/file (str "resources/public/images/" (:filename (:file edn)))))
+                                     (generate-response {:text "good"}))
+                                 (generate-response {:text "bad passphrase"} 418))))))
+    (route/resources "/")
   (route/not-found "<p>No such adventure has been taken yet</p>"))
 
 ; App Setup

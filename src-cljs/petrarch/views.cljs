@@ -30,7 +30,7 @@
         (dom/div #js {:className "read"}
                  (dom/div #js {:id "title"}
                           (dom/h1 nil (:title entry))
-                          (dom/h2 nil (ts->date (:timestamp entry))))
+                          (dom/h3 nil (ts->date (:timestamp entry))))
                  (dom/div #js {:id "markdown" :dangerouslySetInnerHTML #js {:__html text}}
                           nil))))))
 
@@ -157,7 +157,7 @@
                                                                              :routes routes}})))
                  (dom/div #js {:className "footer"}
                           (dom/p nil
-                                 "© Ben Brittain. Shared under the "
+                                 "© Ben Brittain. Content shared under the "
                           (dom/a #js {:href "http://creativecommons.org/licenses/by/4.0/"}
                                  "Creative Commons Attribution 4.0 International License")
                                  ". "

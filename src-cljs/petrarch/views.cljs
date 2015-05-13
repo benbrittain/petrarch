@@ -8,10 +8,7 @@
             [ajax.core :refer [GET POST]]
             [cljs.core.async :refer [put! chan <! >!]]))
 
-(defn ts->date [ts]
-  (println (clj->js ts))
-  (dom/p nil
-         (.toLocaleString (clj->js ts))))
+(defn ts->date [ts] (.toDateString (clj->js ts)))
 
 (defn read-view [entry owner]
   (reify
@@ -39,7 +36,7 @@
     (render [this]
               (dom/a #js {:href (str "#/entry/" (:id entry))}
                      (dom/div #js {:className "entry"}
-                              (dom/span #js {:className "titlee"}
+                              (dom/span #js {:className "title"}
                                         (:title entry))
                               (dom/span #js {:className "date"}
                                         (ts->date (:timestamp entry))))))))
@@ -134,13 +131,11 @@
       (let [view (:view data)
             entry-id (:entry data)
             entry (first (seq (filter #(= (str (:id %)) entry-id) (:entries data))))]
-        (dom/div #js {:id "app"}
-                 (dom/div #js {:className "header"}
-                          (dom/a #js {:href "#/"}
-                                 (dom/h1 #js {:className "title"}
-                                         "\"Tourist, means Idiot.\""))
-                          (dom/h1 #js {:className "subtitle"}
-                                  "Ben Brittain's meanderings through Indochina"))
+        (dom/div #js {:className "app"}
+                 (dom/header nil
+                             (dom/a #js {:href "#/"}
+                                    (dom/h1 nil "Wandering through Indochina")
+                                    (dom/h2 nil "Ben Brittain")))
                  (dom/div #js {:className "wrapper"}
                           (condp = view
                             :entry (dom/div #js {:className "entries"}
@@ -154,9 +149,11 @@
                           (dom/div #js {:className "map"}
                                    (om/build map/map-view data {:init-state {:entries entries
                                                                              :routes routes}})))
-                 (dom/div #js {:className "footer"}
-                          (dom/p nil
-                                 "© Ben Brittain. Content shared under the "
+                 (dom/footer nil
+                   (dom/p nil
+                          "© "
+                          (dom/a #js {:href "http://benbrittain.com"} "Ben Brittain")
+                          ". Content shared under the "
                           (dom/a #js {:href "http://creativecommons.org/licenses/by/4.0/"}
                                  "Creative Commons Attribution 4.0 International License")
                                  ". "

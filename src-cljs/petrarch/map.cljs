@@ -48,7 +48,7 @@
       (let [entries (om/get-state owner :entries)
             routes (om/get-state owner :routes)
             the-map (js/L.mapbox.map. "the-map"
-                                      "bbrittain.lj6l79gh"
+                                      "bbrittain.400e7102"
                                       #js {:maxZoom 12})]
         (doto the-map
           (.setView (js/L.LatLng. 13.75 102.0) 7)

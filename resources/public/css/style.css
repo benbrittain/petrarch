@@ -71,6 +71,11 @@ a {
   padding: 25px;
 }
 
+.read h1{
+  text-align: center;
+  padding: 0px;
+  margin: 0px;
+}
 
 .read img {
   border: 3px solid #191919;
@@ -107,7 +112,7 @@ footer a {
 
 @media all and (max-width: 800px) {
   .wrapper {
-    overflow: auto;
+    overflow: visible;
   }
   .map {
     border-top: 3px solid #191919;

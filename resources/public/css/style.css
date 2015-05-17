@@ -1,6 +1,7 @@
 html, body {
   margin: 0px;
   height: 100vh;
+  width: 100%;
   font-family: helvetica, arial, sans-serif; 
 }
 
@@ -92,4 +93,32 @@ footer {
 footer a {
   color: green;
   text-decoration: none;
+}
+
+@media all and (max-width: 800px) {
+  .map {
+    border-top: 3px solid #191919;
+    height: 500px;
+    width: 100%;
+  }
+  .entries {
+    border: 0px;
+  }
+}
+
+@media all and (min-width: 600px) {
+  .map {
+    flex: 1 auto;
+  }
+  footer {
+    margin-left: 10px;
+  }
+}
+
+@media all and (min-width: 800px) {
+  .entries   { flex: 1 0px; }
+
+  .entries   { order: 1; }
+  .map       { order: 2; }
+  .footer    { order: 3; }
 }

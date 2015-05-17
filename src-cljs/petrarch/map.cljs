@@ -67,5 +67,4 @@
         (go (loop []
               (let [route (<! routes)]
                 (add-route the-map route)
-                (recur))))
-        ))))
+                (recur))))))))

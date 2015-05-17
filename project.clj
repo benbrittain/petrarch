@@ -8,8 +8,8 @@
   :main petrarch.core
   :jvm-opts ["-server"]
 
-  :dependencies [[org.clojure/clojure "1.6.0"]
-                 [org.clojure/clojurescript "0.0-2850"]
+  :dependencies [[org.clojure/clojure "1.7.0-beta2"]
+                 [org.clojure/clojurescript "0.0-3269"]
                  [figwheel "0.2.5-SNAPSHOT"]
                  [org.clojure/core.async "0.1.346.0-17112a-alpha"]
                  [org.omcljs/om "0.8.8"]
@@ -48,11 +48,13 @@
                          :source-map true
                          :source-map-timestamp true
                          :cache-analysis true }}
-             {:id "min"
+             {:id "release"
               :source-paths ["src-cljs"]
               :compiler {:output-to "resources/public/js/compiled/petrarch.js"
+                         :output-dir "resources/public/js/compiled/release"
+                         :asset-path "js/compiled/release"
+                         :optimizations :simple
                          :main petrarch.core
-                         :optimizations :advanced
                          :pretty-print false}}]}
 
   :figwheel {:http-server-root "public"

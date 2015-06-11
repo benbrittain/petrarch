@@ -59,10 +59,7 @@
   (GET "/api/routes" [] (fn [req]
                            (let [edn (:params req) lat (:lat edn)
                                  lng (:long edn) radius (:radius edn)]
-                             (generate-response
-                               {:route (get-route (Double/parseDouble lat)
-                                                  (Double/parseDouble lng)
-                                                  (Double/parseDouble radius))}))))
+                             (generate-response {:text "emergency-hotfix"} 440))))
   (mp/wrap-multipart-params
     (POST "/api/image/" [] (fn [req]
                              (let [edn (:params req)]
